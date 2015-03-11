@@ -200,7 +200,6 @@
     
     //add by asan
     UILongPressGestureRecognizer *longGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleLongGesture:)];
-    longGesture.minimumPressDuration = 1;
     [self.view addGestureRecognizer:longGesture];
     
 	// Super
