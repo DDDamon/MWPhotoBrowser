@@ -199,8 +199,7 @@
     }
     
     //add by asan
-    UILongPressGestureRecognizer *longGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(pxShowActionSheet)];
-    longGesture.minimumPressDuration = 1;
+    UILongPressGestureRecognizer *longGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleLongGesture:)];
     [self.view addGestureRecognizer:longGesture];
     
 	// Super
@@ -1670,6 +1669,14 @@
 }
 
 #pragma mark - add by asan
+
+- (void)handleLongGesture:(UILongPressGestureRecognizer *)gesture
+{
+    if (UIGestureRecognizerStateBegan == gesture.state) {
+        [self pxShowActionSheet];
+    }
+}
+
 - (void)pxShowActionSheet
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Save", nil), nil];
