@@ -14,6 +14,7 @@
 
 #define PADDING                  10
 #define ACTION_SHEET_OLD_ACTIONS 2000
+#define ACTIONSHEET_TAG 1000128
 
 @implementation MWPhotoBrowser
 
@@ -192,11 +193,15 @@
     [self reloadData];
     
     // Swipe to dismiss
-    if (_enableSwipeToDismiss) {
-        UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(doneButtonPressed:)];
-        swipeGesture.direction = UISwipeGestureRecognizerDirectionDown | UISwipeGestureRecognizerDirectionUp;
+    if (_enableSwipeToDismiss) {//add by asan
+        UITapGestureRecognizer *swipeGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneButtonPressed:)];
         [self.view addGestureRecognizer:swipeGesture];
     }
+    
+    //add by asan
+    UILongPressGestureRecognizer *longGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(pxShowActionSheet)];
+    longGesture.minimumPressDuration = 1;
+    [self.view addGestureRecognizer:longGesture];
     
 	// Super
     [super viewDidLoad];
@@ -1547,6 +1552,8 @@
                 [self emailPhoto]; return;
             }
         }
+    }else if (actionSheet.tag == ACTIONSHEET_TAG) {
+        return;
     }
     [self hideControlsAfterDelay]; // Continue as normal...
 }
@@ -1662,4 +1669,19 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - add by asan
+- (void)pxShowActionSheet
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Save", nil), nil];
+    actionSheet.tag = ACTIONSHEET_TAG;
+    [actionSheet showInView:self.view.window];
+}
+
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex != actionSheet.cancelButtonIndex) {
+        [self savePhoto];
+        return;
+    }
+}
 @end
